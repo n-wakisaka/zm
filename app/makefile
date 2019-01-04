@@ -38,6 +38,6 @@ install: $(TARGET)
 clean:
 	@echo " CLEAN"
 	-@rm -f *.o *~ core $(TARGET)
-uninstall: $(TARGET)
-	@echo " UNINSTALL" $^
-	-@rm -f $(addprefix $(BINDIR)/, $^)
+uninstall:
+	@echo " UNINSTALL $(TARGET)"
+	-@rm -f $(addprefix $(BINDIR)/, $(TARGET))

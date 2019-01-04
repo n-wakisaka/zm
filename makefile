@@ -40,6 +40,8 @@ uninstall:
 	-@rm -f $(addprefix $(PREFIX)/lib/, $(notdir $(wildcard $(LIBDIR)/*.so)))
 	@echo " UNINSTALL	header files"
 	-@rm -f $(addprefix $(PREFIX)/include/$(PROJNAME)/, $(notdir $(wildcard $(INCDIR)/*.h)))
-	-@rmdir --ignore-fail-on-non-empty $(PREFIX)/include/$(PROJNAME)
+	@if [ -d $(PREFIX)/include/$(PROJNAME) ]; then\
+		rmdir --ignore-fail-on-non-empty $(PREFIX)/include/$(PROJNAME);\
+	fi
 	@echo " UNINSTALL	applications"
 	@cd $(APPDIR); make uninstall
