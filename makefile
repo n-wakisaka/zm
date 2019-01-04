@@ -35,3 +35,11 @@ install:
 	-@install -m 644 $(INCDIR)/*.h $(PREFIX)/include/$(PROJNAME)/
 	@echo " INSTALL	applications"
 	@cd $(APPDIR); make install
+uninstall:
+	@echo " UNINSTALL	library"
+	-@rm -f $(addprefix $(PREFIX)/lib/, $(notdir $(wildcard $(LIBDIR)/*.so)))
+	@echo " UNINSTALL	header files"
+	-@rm -f $(addprefix $(PREFIX)/include/$(PROJNAME)/, $(notdir $(wildcard $(INCDIR)/*.h)))
+	-@rmdir --ignore-fail-on-non-empty $(PREFIX)/include/$(PROJNAME)
+	@echo " UNINSTALL	applications"
+	@cd $(APPDIR); make uninstall
