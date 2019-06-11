@@ -1,6 +1,10 @@
 ZM - a handy mathematics library.
 Copyright (C) 1998 Tomomichi Sugihara (Zhidao)
 
+| *master* | *develop* |
+|----------|-----------|
+| [![Build Status](https://travis-ci.org/n-wakisaka/zm.svg?branch=master)](https://travis-ci.org/n-wakisaka/zm) | [![Build Status](https://travis-ci.org/n-wakisaka/zm.svg?branch=develop)](https://travis-ci.org/n-wakisaka/zm)
+
 -----------------------------------------------------------------
 [What is this?]
 
