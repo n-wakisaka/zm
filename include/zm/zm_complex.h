@@ -35,23 +35,34 @@ __EXPORT zComplex *zComplexCreate(zComplex *c, double r, double i);
 
 /*! \brief create a complex number from the polar expression.
  *
- * zComplexPolar() creates a complex number from the polar
+ * zComplexCreatePolar() creates a complex number from the polar
  * expression with radius \a r and argument angle \a t
  * in Gaussian plane, where \a t is given in radians.
  * The result is put where \a c points.
  */
-__EXPORT zComplex *zComplexPolar(zComplex *c, double r, double t);
+__EXPORT zComplex *zComplexCreatePolar(zComplex *c, double r, double t);
 
 /*! \brief copy a complex number to another.
  *
  * zComplexCopy() copies a complex number \a src to another \a dest. */
-#define zComplexCopy(src,dest) ( *(dest) = *(src) );
+#define _zComplexCopy(src,dest) ( *(dest) = *(src) )
+__EXPORT zComplex *zComplexCopy(zComplex *src, zComplex *dest);
 
 /*! \brief create a zero complex number.
  *
  * zComplexZero() creates a zero complex number \a c by
  * setting both real and imaginary parts for zeros. */
 #define zComplexZero(c) zComplexCreate(c,0,0)
+
+/*! \brief touchup a complex number.
+ *
+ * zComplexTouchup() replaces real part or imaginary part of a
+ * complex number \a c for zero if either value relative to the
+ * other part is less than zTOL.
+ * \return
+ * zComplexTouchup() returns a pointer \a c.
+ */
+__EXPORT zComplex *zComplexTouchup(zComplex *c);
 
 /*! \brief test if a complex number is under the tolerance.
  *
@@ -65,6 +76,15 @@ __EXPORT zComplex *zComplexPolar(zComplex *c, double r, double t);
 
 /*! \brief test if a complex nubmer is under the default tolerance. */
 #define zComplexIsTiny(c)    zComplexIsTol( c, zTOL )
+
+/*! \brief check if a complex number is a real number. */
+#define zComplexIsReal(c,tol) zIsTol( (c)->im, tol )
+
+/*! \brief check if two complex numbers are equal. */
+#define zComplexIsEqual(c1,c2,tol) ( zIsEqual( (c1)->re, (c2)->re, tol ) && zIsEqual( (c1)->im, (c2)->im, tol ) )
+
+/*! \brief check if two complex numbers are co-conjugate. */
+#define zComplexIsConj(c1,c2,tol) ( zIsEqual( (c1)->re, (c2)->re, tol ) && zIsEqual( (c1)->im, -(c2)->im, tol ) )
 
 /*! \brief primt a complex number.
  *
@@ -87,6 +107,24 @@ __EXPORT void zComplexCoordFPrint(FILE *fp, zComplex *c);
 /*! \brief prints the coordinates of a complex number
  * to the standard output. */
 #define zComplexCoordPrint(c) zComplexCoordFPrint( stdout, (c) )
+
+/*! \brief check if a complex number is a member of an array.
+ *
+ * zComplexValIsIncluded() checks if a complex number \a c is
+ * included in an array \a array.
+ * zComplexValConjIsIncluded() checks if conjugate of \a c is
+ * included in an array \a array.
+ * For both functions, \a size is the size of the array, and
+ * \a tol is the tolerance to regard two values are the same.
+ * \return
+ * zComplexValIsIncluded() returns the true value if \a c is
+ * included in \a \array. Otherwise, the false value is returned.
+ * zComplexValConjIsIncluded() returns the true value if conjugate
+ * of \a c is included in \a \array. Otherwise, the false value
+ * is returned.
+ */
+__EXPORT bool zComplexValIsIncluded(zComplex *array, int size, zComplex *c, double tol);
+__EXPORT bool zComplexValConjIsIncluded(zComplex *array, int size, zComplex *c, double tol);
 
 /*! \} */
 

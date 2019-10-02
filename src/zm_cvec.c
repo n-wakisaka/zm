@@ -47,6 +47,16 @@ zCVec zCVecZero(zCVec v)
   return v;
 }
 
+/* touchup a complex vector. */
+zCVec zCVecTouchup(zCVec v)
+{
+  register int i;
+
+  for( i=0; i<zCVecSizeNC(v); i++ )
+    zComplexTouchup( zCVecElemNC(v,i) );
+  return v;
+}
+
 /* copy a complex vector without checking size consistency. */
 zCVec zCVecCopyNC(zCVec src, zCVec dest)
 {
@@ -95,15 +105,13 @@ zCVec zCVecRandUniform(zCVec v, double rmin, double imin, double rmax, double im
 }
 
 /* check if two complex vectors are equal. */
-bool zCVecIsEqual(zCVec v1, zCVec v2)
+bool zCVecIsEqual(zCVec v1, zCVec v2, double tol)
 {
   register int i;
 
   if( !zCVecSizeIsEqual( v1, v2 ) ) return false;
   for( i=0; i<zCVecSizeNC(v1); i++ )
-    if( !zIsTiny( zCVecElemNC(v1,i)->re - zCVecElemNC(v2,i)->re ) ||
-        !zIsTiny( zCVecElemNC(v1,i)->im - zCVecElemNC(v2,i)->im ) )
-      return false;
+    if( !zComplexIsEqual( zCVecElemNC(v1,i), zCVecElemNC(v2,i), tol ) ) return false;
   return true;
 }
 
@@ -116,6 +124,72 @@ bool zCVecIsTol(zCVec v, double tol)
     if( !zComplexIsTol( zCVecElemNC(v,i), tol ) ) return false;
   return true;
 }
+
+/* split a complex vector to a real vector and an imaginary vector. */
+bool zCVecToReIm(zCVec cvec, zVec *rvec, zCVec *ivec, double tol)
+{
+  zIndex ridx, iidx;
+  register int i, rsize, isize;
+  bool ret = true;
+
+  ridx = zIndexCreate( zCVecSizeNC(cvec) );
+  iidx = zIndexCreate( zCVecSizeNC(cvec) );
+  if( !ridx || !iidx ){
+    ret = false;
+    goto TERMINATE;
+  }
+  for( i=rsize=isize=0; i<zCVecSizeNC(cvec); i++ ){
+    if( zComplexIsReal( zCVecElemNC(cvec,i), tol ) )
+      zIndexSetElemNC( ridx, rsize++, i );
+    else{
+      zIndexSetElemNC( iidx, isize++, i );
+    }
+  }
+  *rvec = rsize > 0 ? zVecAlloc( ( zArraySize(ridx) = rsize ) ) : NULL;
+  *ivec = isize > 0 ? zCVecAlloc( ( zArraySize(iidx) = isize ) ) : NULL;
+  if( !*rvec && !*ivec ){
+    zVecFree( *rvec );
+    zCVecFree( *ivec );
+    ret = false;
+    goto TERMINATE;
+  }
+  for( i=0; i<rsize; i++ )
+    zVecSetElemNC( *rvec, i, zCVecElemNC(cvec,zIndexElemNC(ridx,i))->re );
+  for( i=0; i<isize; i++ )
+    zCVecSetElemNC( *ivec, i, zCVecElemNC(cvec,zIndexElemNC(iidx,i)) );
+  if( *ivec && !zCVecConjPair( *ivec, tol ) ) ret = false;
+
+ TERMINATE:
+  zIndexFree( ridx );
+  zIndexFree( iidx );
+  return ret;
+}
+
+/* reorder a complex vector as co-conjugate numbers are paired as adjacencies. */
+zCVec zCVecConjPair(zCVec v, double tol)
+{
+  register int i, j;
+
+  if( zIsOdd( zCVecSizeNC(v) ) ){
+    ZRUNERROR( ZM_ERR_CVEC_CONJPAIR_UNABLE );
+    return NULL;
+  }
+  for( i=0; i<zCVecSizeNC(v); i+=2 ){
+    for( j=i+1; j<zCVecSizeNC(v); j++ ){
+      if( zComplexIsConj( zCVecElemNC(v,i), zCVecElemNC(v,j), tol ) ){
+        if( j > i + 1 ) zSwap( zComplex, *zCVecElemNC(v,i+1), *zCVecElemNC(v,j) );
+        break;
+      }
+    }
+    if( j == zCVecSizeNC(v) ){
+      ZRUNERROR( ZM_ERR_CVEC_CONJPAIR_UNABLE );
+      return NULL;
+    }
+  }
+  return v;
+}
+
+/* basic arithmetics for the complex vector. */
 
 /* add two complex vectors without checking size consistency. */
 zCVec zCVecAddNC(zCVec v1, zCVec v2, zCVec v)

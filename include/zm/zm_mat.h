@@ -292,12 +292,13 @@ __EXPORT void zMatShift(zMat m, double shift);
 /*! \brief check if two matrices are equal.
  *
  * zMatIsEqual() checks if given two matrices \a m1 and \a m2
- * are equal.
+ * are equal. \a tol is the tolerance to regard two values as
+ * the same.
  * \return
  * zMatIsEqual() returns the true value if \a m1 and \a m2
  * are equal, or the false value otherwise.
  */
-__EXPORT bool zMatIsEqual(zMat m1, zMat m2);
+__EXPORT bool zMatIsEqual(zMat m1, zMat m2, double tol);
 
 /*! \brief check if a matrix is tiny.
  *
@@ -543,6 +544,9 @@ __EXPORT zMat zMatQuadNC(zMat a, zVec w, zMat q);
 __EXPORT zMat zMatQuad(zMat a, zVec w, zMat q);
 __EXPORT zMat zMatTQuadNC(zMat a, zVec w, zMat q);
 __EXPORT zMat zMatTQuad(zMat a, zVec w, zMat q);
+
+/*! \brief read a matrix from a ZTK format processor. */
+__EXPORT zMat zMatFromZTK(ZTK *ztk);
 
 /*! \brief scan and print a matrix.
  *

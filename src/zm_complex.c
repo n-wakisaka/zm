@@ -20,9 +20,28 @@ zComplex *zComplexCreate(zComplex *c, double r, double i)
 }
 
 /* create a complex number based on the polar expression. */
-zComplex *zComplexPolar(zComplex *c, double r, double t)
+zComplex *zComplexCreatePolar(zComplex *c, double r, double t)
 {
   return zComplexCreate( c, r*cos(t), r*sin(t) );
+}
+
+/* copy a complex number to another. */
+zComplex *zComplexCopy(zComplex *src, zComplex *dest)
+{
+  _zComplexCopy( src, dest );
+  return dest;
+}
+
+/* touchup a complex number. */
+zComplex *zComplexTouchup(zComplex *c)
+{
+  double ri, ir;
+
+  ri = c->re / c->im;
+  ir = c->im / c->re;
+  if( zIsTiny(ri) ) c->re = 0;
+  if( zIsTiny(ir) ) c->im = 0;
+  return c;
 }
 
 /* print a complex number to a file. */
@@ -40,4 +59,24 @@ void zComplexFPrint(FILE *fp, zComplex *c)
 void zComplexCoordFPrint(FILE *fp, zComplex *c)
 {
   fprintf( fp, "%.10g %.10g", c->re, c->im );
+}
+
+/* check if a complex number is a member of an array. */
+bool zComplexValIsIncluded(zComplex *array, int size, zComplex *c, double tol)
+{
+  register int i;
+
+  for( i=0; i<size; i++ )
+    if( zComplexIsEqual( &array[i], c, tol ) ) return true;
+  return false;
+}
+
+/* check if conjugate of a complex number is a member of an array. */
+bool zComplexValConjIsIncluded(zComplex *array, int size, zComplex *c, double tol)
+{
+  register int i;
+
+  for( i=0; i<size; i++ )
+    if( zComplexIsConj( &array[i], c, tol ) ) return true;
+  return false;
 }
