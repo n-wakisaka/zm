@@ -33,14 +33,14 @@ bool zNURBSCreate(zNURBS *nurbs, zSeq *seq, int dim)
   zSeqListCell *cp;
   bool ret = true;
 
-  if( zListNum(seq) <= dim ){
+  if( zListSize(seq) <= dim ){
     ZRUNERROR( ZM_ERR_NURBS_INVDIM );
     return false;
   }
   nurbs->dim = dim;
-  nurbs->knot = zVecAlloc( zListNum(seq)+dim+1 );
+  nurbs->knot = zVecAlloc( zListSize(seq)+dim+1 );
 
-  zArrayAlloc( &nurbs->cparray, zNURBSCPCell, zListNum(seq) );
+  zArrayAlloc( &nurbs->cparray, zNURBSCPCell, zListSize(seq) );
   if( !nurbs->knot || zNURBSCPNum(nurbs) == 0 ){
     ZALLOCERROR();
     zNURBSDestroy( nurbs );
@@ -230,7 +230,7 @@ double zNURBSVecNN(zNURBS *nurbs, zVec v, zVec nn)
         s2 = sj;
       }
     }
-    if( zIsTiny( s1 - s2 ) || zIsTiny( dmin1 - dmin2 ) ) break;
+    if( zIsEqual( s1, s2, zTOL ) || zIsEqual( dmin1, dmin2, zTOL ) ) break;
   }
   zNURBSVec( nurbs, ( sj = 0.5*(s1+s2) ), nn );
   zVecFree( vs );

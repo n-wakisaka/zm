@@ -253,13 +253,13 @@ void zVecSort(zVec v, zIndex idx)
 }
 
 /* check if two vectors are equal. */
-bool zVecIsEqual(zVec v1, zVec v2)
+bool zVecIsEqual(zVec v1, zVec v2, double tol)
 {
   register int i;
 
   if( !zVecSizeIsEqual( v1, v2 ) ) return false;
   for( i=0; i<zVecSizeNC(v1); i++ )
-    if( !zIsTiny( zVecElemNC(v1,i) - zVecElemNC(v2,i) ) ) return false;
+    if( !zIsEqual( zVecElemNC(v1,i), zVecElemNC(v2,i), tol ) ) return false;
   return true;
 }
 
@@ -493,6 +493,23 @@ double zVecInfNorm(zVec v)
 zVec zVecNormalize(zVec src, zVec dest)
 {
   return zRawVecNormalize( zVecBufNC(src), zVecSizeNC(src), zVecBufNC(dest) ) ? dest : NULL;
+}
+
+/* ********************************************************** */
+/* I/O
+ * ********************************************************** */
+
+/* read a vector from a ZTK format processor. */
+zVec zVecFromZTK(ZTK *ztk)
+{
+  register int i, size;
+  zVec v;
+
+  size = ZTKInt(ztk);
+  if( !( v = zVecAlloc( size ) ) ) return NULL;
+  for( i=0; i<size; i++ )
+    zVecSetElemNC( v, i, ZTKDouble(ztk) );
+  return v;
 }
 
 /* scan a vector from a file. */

@@ -15,7 +15,7 @@ __BEGIN_DECLS
 /*! \brief complex number vector class
  * ********************************************************** */
 zArrayClass( zCVecStruct, zComplex );
-typedef zCVecStruct * zCVec;
+typedef zCVecStruct* zCVec;
 
 /*! \brief size of a complex vector.
  * \retval the size of a complex vector if \a v is not null.
@@ -55,6 +55,10 @@ typedef zCVecStruct * zCVec;
  * zCVecZero() sets all components of a complex vector \a v
  * for zeros.
  *
+ * zCVecTouchup() replaces real part or imaginary part of all
+ * components of a complex vector \a v for zero if either value
+ * relative to the other part is less than zTOL.
+ *
  * zCVecCopyNC() copies a complex vector \a src to another
  * \a dest without checking the size consistency between them.
  *
@@ -69,6 +73,8 @@ typedef zCVecStruct * zCVec;
  *
  * zCVecZero() returns a pointer \a v.
  *
+ * zCVecTouchup() returns a pointer \a v.
+ *
  * zCVecCopyNC() returns a pointer \a dest.
  *
  * zCVecCopy() returns a pointer \a dest, or the null pointer
@@ -82,6 +88,7 @@ typedef zCVecStruct * zCVec;
 __EXPORT zCVec zCVecAlloc(int size);
 __EXPORT void zCVecFree(zCVec v);
 __EXPORT zCVec zCVecZero(zCVec v);
+__EXPORT zCVec zCVecTouchup(zCVec v);
 __EXPORT zCVec zCVecCopyNC(zCVec src, zCVec dest);
 __EXPORT zCVec zCVecCopy(zCVec src, zCVec dest);
 __EXPORT zCVec zCVecClone(zCVec src);
@@ -95,12 +102,13 @@ __EXPORT zCVec zCVecRandUniform(zCVec v, double rmin, double imin, double rmax, 
 /*! \brief compare two complex vectors.
  *
  * zCVecIsEqual() checks if two complex vectors \a v1 and
- * \a v2 are equal.
+ * \a v2 are equal. \a tol is the tolerance to regard two
+ * values as the same.
  * \return
  * zCVecIsEqual() returns the true value if \a v1 equals
  * to \a v2, or the false value otherwise.
  */
-__EXPORT bool zCVecIsEqual(zCVec v1, zCVec v2);
+__EXPORT bool zCVecIsEqual(zCVec v1, zCVec v2, double tol);
 
 /*! \brief check if a complex vector is tiny.
  *
@@ -115,6 +123,12 @@ __EXPORT bool zCVecIsEqual(zCVec v1, zCVec v2);
  */
 __EXPORT bool zCVecIsTol(zCVec v, double tol);
 #define zCVecIsTiny(v) zCVecIsTol( v, zTOL )
+
+/*! \brief split a complex vector to a real vector and an imaginary vector. */
+__EXPORT bool zCVecToReIm(zCVec cvec, zVec *rvec, zCVec *ivec, double tol);
+
+/*! \brief reorder a complex vector as co-conjugate numbers are paired as adjacencies. */
+__EXPORT zCVec zCVecConjPair(zCVec v, double tol);
 
 /*! \brief basic arithmetics for the complex vector.
  *
@@ -215,6 +229,11 @@ __EXPORT double zCVecSqrNorm(zCVec v);
 #define zCVecNorm(v)         sqrt( zCVecSqrNorm(v) )
 __EXPORT zCVec zCVecNormalize(zCVec src, zCVec dest);
 #define zCVecNormalizeDRC(v) zCVecNormalize(v,v)
+
+/*! \brief check if a complex number is included in a complex vector. */
+#define zCVecValIsIncluded(v,c) zComplexValIsIncluded( zCVecBufNC(v), zCVecSizeNC(v), c )
+/*! \brief check if conjugate of a complex number is included in a complex vector. */
+#define zCVecValConjIsIncluded(v,c) zComplexValConjIsIncluded( zCVecBufNC(v), zCVecSizeNC(v), c )
 
 /*! \brief print a complex vector.
  *

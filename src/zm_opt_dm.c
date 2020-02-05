@@ -153,7 +153,7 @@ zVec _zOptDMStepMT(zOptDM *opt, zVec var, void *util, double e0, double *e1)
         if( fabs( gt ) <= fabs( gl ) ){
           at = ( fabs( ac - at ) < fabs( as - at ) ) ? ac : as;
           v1 = at + 0.66 * (au-at); /* v1 temporarily used */
-          at = ( at > al ) ? zMin( v1, at ) : zMax( v1, at );
+          at = ( at > al ) ? _zMin( v1, at ) : _zMax( v1, at );
         } else
           at = ac;
       }
@@ -200,7 +200,7 @@ zVec _zOptDMStepDS(zOptDM *opt, zVec var, void *util, double e0, double *e1)
   if( _zOptDMStepTest( opt, var, util, &a1, e0, df, e1 ) ) goto TERMINATE;
   /* cubic approximation test */
   for( ; ; v2=v1 ){
-    if( zIsTiny( ( da = a1 - a2 ) ) ) break;
+    if( zIsEqual( ( da = a1 - a2 ), a1, zTOL ) ) break;
     v1 = ( *e1 - e0 + s*a2 ) / ( a2*a2 );
     c1 = 3 * ( v1 - v2 ) / da;
     c2 = ( v2*a1 - v1*a2 ) / da;

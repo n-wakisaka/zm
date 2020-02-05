@@ -8,6 +8,7 @@
 #define __ZM_PEX_H__
 
 #include <zm/zm_stat.h>
+#include <zm/zm_cvec.h>
 #include <zm/zm_le.h>
 
 __BEGIN_DECLS
@@ -32,7 +33,7 @@ typedef zVec zPex;
 #define zPexSetCoeffHigh(p,i,c)  zPexSetCoeff(p,zPexDim(p)-(i),c)
 #define zPexSetCoeffLow(p,i,c)   zPexSetCoeff(p,i,c)
 
-#define zPexIsEqual(p1,p2)       zVecIsEqual(p1,p2)
+#define zPexIsEqual(p1,p2,tol)   zVecIsEqual(p1,p2,tol)
 
 #define zPexTouchup(p)           zVecTouchup(p)
 
@@ -103,15 +104,22 @@ __EXPORT bool zPexDiv(zPex p, zPex f, zPex *q, zPex *r);
 
 /*! \brief expand factors into a polynomial expression.
  *
- * zPexExp() expands a factorial style into a polynomial
- * expression. Suppose \a factor is [a1 a2 ... aN], the
- * corresponding factorial styleis (x-a1)(x-a2)...(x-aN).
+ * zPexExp() and zPexCExp() expand a factorial style into a polynomial
+ * expression. Suppose \a factor is [a1 a2 ... aN], the corresponding
+ * factorial style is (x-a1)(x-a2)...(x-aN).
  *
- * The result is newly allocated.
+ * zPexExp() accepts real-number factors given by a real vector, while
+ * zPexCExp() does complex-number factors by a complex vector.
+ *
+ * The result is newly allocated for both functions.
+ * \note
+ * The factors given to zPexCExp() have to include only real numbers
+ * and paired co-conjugate imaginary numbers.
  * \return
- * zPexExp() returns a pointer to the result.
+ * zPexExp() and zPexCExp() return a pointer to the result.
  */
 __EXPORT zPex zPexExp(zVec factor);
+__EXPORT zPex zPexCExp(zCVec factor);
 
 /*! \brief compute modulo of a primary expression.
  *
@@ -172,31 +180,46 @@ __EXPORT double zPexVal(zPex p, double arg);
 __EXPORT zComplex *zPexCVal(zPex p, zComplex *arg, zComplex *c);
 __EXPORT double zPexDifVal(zPex p, int dim, double arg);
 
-/*! \brief expression of a polynomial expression.
+/*! \brief scan a polynomial expression from a ZTK processor. */
+__EXPORT zPex zPexFromZTK(ZTK *ztk);
+
+/*! \brief scan and print a polynomial expression.
  *
- * zPexFScan() scans coefficients of a polynomial
- * expression \a p in ascending absolute value order
- * from the current position of a file \a fp.
+ * zPexFScan() scans coefficients of a polynomial expression \a p
+ * in ascending absolute value order from the current position of
+ * a file \a fp.
  * zPexScan() scans them from the standerd input.
  *
- * zPexFPrint() prints coefficients of a polynomial
- * expression \a p in ascending absolute value order
- * to the current position of a file \a fp.
+ * zPexFPrint() prints coefficients of a polynomial expression
+ * \a p in ascending absolute value order to the current position
+ * of a file \a fp.
  * zPexPrint() prints them to the standerd output.
- *
- * zPexFExpr() prints the expression \a p in decending
- * absolute value order in the expression form to the
- * current position of a file a fp. zPexExpr() prints
- * the expression \a p to the standerd output.
  * \return
- * zPexFPrint(), zPexPrint(), zPexFExpr() and zPexExpr()
- * return no values.
+ * zPexFScan() and zPexScan() return a pointer \a p.
+ * zPexFPrint() and zPexPrint() return no values.
  */
 __EXPORT zPex zPexFScan(FILE *fp);
 #define zPexScan(p)     zPexFScan( stdin, p )
 __EXPORT void zPexFPrint(FILE *fp, zPex p);
 #define zPexPrint(p)    zPexFPrint( stdout, p )
-__EXPORT void zPexFExpr(FILE *fp, zPex p, char c);
+
+/*! \brief expression of a polynomial expression.
+ *
+ * zPexSExpr() prints a polynomial expression \a p in decending
+ * absolute value order in the expression form to an array of
+ * charactors \a str. \a size is the maximum number of charactors
+ * \a str can store.
+ * \a c is a letter that represents the base variable.
+ *
+ * zPexFExpr() prints a polynomial expression \a p in the same
+ * format with zPexSExpr() to the current position of a file a fp.
+ * zPexExpr() prints \a p to the standerd output.
+ * \return
+ * zPexSExpr() returns a pointer \a str.
+ * zPexFExpr() and zPexExpr() return the number of output charactors.
+ */
+__EXPORT char *zPexSExpr(char *str, size_t size, zPex p, char c);
+__EXPORT int zPexFExpr(FILE *fp, zPex p, char c);
 #define zPexExpr(p,c)   zPexFExpr( stdout, (p), (c) )
 #define zPexFExprX(f,p) zPexFExpr( (f), (p), 'x' )
 #define zPexExprX(p)    zPexExpr( p, 'x' )

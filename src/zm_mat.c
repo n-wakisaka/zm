@@ -405,14 +405,14 @@ void zMatShift(zMat m, double shift)
 }
 
 /* see if two matrices are equal. */
-bool zMatIsEqual(zMat m1, zMat m2)
+bool zMatIsEqual(zMat m1, zMat m2, double tol)
 {
   register int i, j;
 
   if( !zMatSizeIsEqual( m1, m2 ) ) return false;
   for( i=0; i<zMatRowSizeNC(m1); i++ )
     for( j=0; j<zMatColSizeNC(m1); j++ )
-      if( !zIsTiny( zMatElemNC(m1,i,j) - zMatElemNC(m2,i,j) ) ) return false;
+      if( !zIsEqual( zMatElemNC(m1,i,j), zMatElemNC(m2,i,j), tol ) ) return false;
   return true;
 }
 
@@ -883,6 +883,25 @@ zMat zMatTQuad(zMat a, zVec w, zMat q)
   return zMatTQuadNC( a, w, q );
 }
 
+/* ********************************************************** */
+/* I/O
+ * ********************************************************** */
+
+/* read a matrix from a ZTK format processor. */
+zMat zMatFromZTK(ZTK *ztk)
+{
+  register int i, j, row, col;
+  zMat m;
+
+  row = ZTKInt(ztk);
+  col = ZTKInt(ztk);
+  if( !( m = zMatAlloc( row, col ) ) ) return NULL;
+  for( i=0; i<row; i++ )
+    for( j=0; j<col; j++ )
+      zMatSetElemNC( m, i, j, ZTKDouble(ztk) );
+  return m;
+}
+
 /* scan information of a matrix from file. */
 zMat zMatFScan(FILE *fp)
 {
@@ -892,7 +911,6 @@ zMat zMatFScan(FILE *fp)
   row = zFInt( fp );
   col = zFInt( fp );
   if( !( m = zMatAlloc( row, col ) ) ) return NULL;
-
   for( i=0; i<row; i++ )
     for( j=0; j<col; j++ )
       zMatSetElemNC( m, i, j, zFDouble( fp ) );
@@ -928,14 +946,14 @@ void zMatImg(zMat m)
 
   max = fabs( zDataMax( zMatBufNC(m), zMatRowSizeNC(m)*zMatColSizeNC(m), NULL ) );
   min = fabs( zDataMin( zMatBufNC(m), zMatRowSizeNC(m)*zMatColSizeNC(m), NULL ) );
-  d = zMax( max, min ) / 4;
+  d = _zMax( max, min ) / 4;
   for( i=0; i<zMatRowSizeNC(m); i++ ){
     for( j=0; j<zMatColSizeNC(m); j++ ){
       if( zIsTiny( zMatElemNC(m,i,j) ) )
         printf( "  " );
       else{
         c = zRound( zMatElemNC(m,i,j) / d );
-        c = zLimit( c, -3, 3 );
+        c = _zLimit( c, -3, 3 );
         printf( "%c ", c < 0 ? pat_neg[-c] : pat_pos[c] );
       }
     }

@@ -233,15 +233,22 @@ __EXPORT void zVecSort(zVec v, zIndex idx);
 #define zVecAve(v)      zDataAve( zVecBuf(v), zVecSizeNC(v) )
 #define zVecVar(v)      zDataVar( zVecBuf(v), zVecSizeNC(v) )
 
+/*! \brief check if a value is included in a vector.
+ *
+ * zVecValIsIncluded() checks if a value \a val is included in a vector \a v.
+ */
+#define zVecValIsIncluded(v,val,tol) zDataIsIncluded( zVecBuf(v), zVecSizeNC(v), val, tol )
+
 /*! \brief compare two vectors.
  *
  * zVecIsEqual() sees if the given two vector \a v1 and \a v2
- * are equal to each other.
+ * are equal to each other. \a tol is the tolerance to regard
+ * two values as the same.
  * \return
  * zVecIsEqual() returns the true value if \a v1 equals to
  * \a v2, or the false value otherwise.
  */
-__EXPORT bool zVecIsEqual(zVec v1, zVec v2);
+__EXPORT bool zVecIsEqual(zVec v1, zVec v2, double tol);
 
 /*! \brief check if a vector is tiny.
  *
@@ -412,6 +419,9 @@ __EXPORT zVec zVecNormalize(zVec src, zVec dest);
 #define zVecNormalizeDRC(v) zVecNormalize(v,v)
 #define zVecSqrDist(v1,v2)  zRawVecSqrDist(zVecBuf(v1),zVecBuf(v2),zVecSizeNC(v1))
 #define zVecDist(v1,v2)     sqrt( zVecSqrDist( v1, v2 ) )
+
+/*! \brief read a vector from a ZTK format processor. */
+__EXPORT zVec zVecFromZTK(ZTK *ztk);
 
 /*! \brief scan and print a vector.
  *

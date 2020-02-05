@@ -1,7 +1,3 @@
-# default suffices
-# .zv  : vector
-# .zvs : vector sequence
-
 include ../config
 
 INCLUDE=-I$(PREFIX)/include -I../include -I.
@@ -16,6 +12,7 @@ LINK=-lzm `zeda-config -l`
 COMPILE=$(CC) $(CFLAGS) -o $@ $< $(LINK)
 
 INSTALL=install -m 755
+UNINSTALL=rm -f
 
 CONFIGGEN=zeda-config-gen
 CONFIG=zm-config
@@ -39,5 +36,5 @@ clean:
 	@echo " CLEAN"
 	-@rm -f *.o *~ core $(TARGET)
 uninstall:
-	@echo " UNINSTALL $(TARGET)"
-	-@rm -f $(addprefix $(BINDIR)/, $(TARGET))
+	@echo " UNINSTALL	" $(TARGET)
+	@cd $(BINDIR); $(UNINSTALL) $(TARGET); cd -
